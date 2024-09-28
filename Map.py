@@ -24,17 +24,23 @@ class MapObject:
         self.map = self.load_map(image_path)
         self.resolution = (self.map.shape[0], self.map.shape[1])
         assert self.map.shape[2] == 3, f"Imported map {map_object_name} is not RGB" #TODO alpha channels not handled
-        self.layers = []
+        self.layers = {}
     
     def add_layer(self, layer_name: str, layer_data=None) -> None:
-        self.layers.append(Layer(layer_name, layer_data, resolution=self.resolution))
+        self.layers[layer_name] = (Layer(layer_name, layer_data, resolution=self.resolution))
     
-    def update_layer(self, name:str, data=None) -> None:
+    def update_layer(self, layer_name:str, data=None, name=None, map=None) -> None:
+        assert layer_name in self.layers, "Layer not found"
+        old = self.layers[layer_name]
         if data == None:
-            print("No data provided, aborting edit")
-            return
-        
-        assert name in self.layers, "Layer not found"
+            data = old.data
+        if map == None:
+            map = old.map
+        if name == None:
+            self.layers[layer_name] = Layer(name, layer_data=data, layer_map=map, resolution=old.resolution)
+        else:
+            del self.layers[layer_name]
+            self.layers[name] = Layer(name, layer_data=data, layer_map=map, resolution=old.resolution)
     
     def save_MapObject(self, path):
         with open(f"{path}.pickle", 'wb') as f:

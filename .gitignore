@@ -2,3 +2,4 @@ mapperenv/
 __pycache__/
 .vscode/
 *test.py
+saved_maps/

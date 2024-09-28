@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 import pickle
+import Utilities as util
 
 class Layer:
     def __init__(self, layer_name: str, layer_data=None, layer_map=None, resolution=None):
@@ -10,7 +11,7 @@ class Layer:
         else:
             if resolution == None:
                 raise ValueError("Neither Resolution nor Data provided")
-            self.data = np.zeros(shape=resolution)
+            self.data = np.ones(shape=resolution, dtype=np.uint8)
         self.map = {}
         
     def add_value(self, key, value) -> None:
@@ -19,9 +20,11 @@ class Layer:
         self.map[key] = value
 
 class MapObject:
-    def __init__(self, image_path: str, map_object_name="") -> None:
+    def __init__(self, image_path=None, map_object_name="") -> None:
         self.name = map_object_name
-        self.map = self.load_map(image_path)
+        if image_path == None:
+            image_path = util.choose_file()
+        self.load_map(image_path)
         self.resolution = (self.map.shape[0], self.map.shape[1])
         assert self.map.shape[2] == 3, f"Imported map {map_object_name} is not RGB" #TODO alpha channels not handled
         self.layers = {}
@@ -46,13 +49,13 @@ class MapObject:
         with open(f"{path}.pickle", 'wb') as f:
             pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
     
-    def load_map(path: str) -> np.array:
+    def load_map(self, path: str) -> np.array:
         img = Image.open(path)
-        map = np.asarray(img)
-        map = (map-map.min())*255/(map.max()-map.min())
-        return map.astype(np.uint8)
-    
-def load_MapObject(path):
-    with open(f"{path}.pickle", 'rb') as f:
+        self.map = np.asarray(img)
+        
+def load_MapObject(path=None) -> MapObject:
+    if path == None:
+        path = util.choose_file()
+    with open(path, 'rb') as f:
         loaded_object = pickle.load(f)
     return loaded_object        

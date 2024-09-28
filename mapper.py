@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import Image
+import PIL.Image as Image
 
 
 img = Image.open()

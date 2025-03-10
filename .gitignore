@@ -5,3 +5,4 @@ __pycache__/
 saved_maps/
 *.jpg
 *.pickle
+Map_images/
